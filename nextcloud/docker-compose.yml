@@ -1,0 +1,64 @@
+# ============================================================
+#  Nextcloud — private file cloud (your "iCloud Drive")
+#  Part of the private-pi-cloud project.
+#  Three services: app (Nextcloud) + db (MariaDB) + redis (cache)
+#  Secrets (DB passwords) live in .env — never commit .env!
+# ============================================================
+
+services:
+  # ---------- Database (MariaDB) ----------
+  db:
+    image: mariadb:11.8                 # pinned, Nextcloud-supported version (do NOT use :lts — may pull an unsupported 12.x)
+    container_name: nextcloud-db        # fixed, readable container name
+    restart: unless-stopped             # auto-restart after crash/reboot; comes back on its own
+    command: >-                         # startup flags recommended by Nextcloud for MariaDB:
+      --transaction-isolation=READ-COMMITTED   # isolation level Nextcloud expects
+      --log-bin=binlog                          # enable binary change-log...
+      --binlog-format=ROW                       # ...in row format (data integrity)
+    volumes:
+      - db_data:/var/lib/mysql          # store DB files in a Docker-managed volume (survives rebuilds)
+    environment:
+      - MYSQL_DATABASE=nextcloud        # create an empty DB called "nextcloud" on first start
+      - MYSQL_USER=nextcloud            # create a DB user "nextcloud" for the app
+    env_file:
+      - .env                            # loads MYSQL_ROOT_PASSWORD + MYSQL_PASSWORD (kept out of this file)
+
+  # ---------- Cache (Redis) ----------
+  redis:
+    image: redis:alpine                 # small in-memory cache; speeds up Nextcloud + handles file locking
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    # (no volume: the cache is disposable by design)
+
+  # ---------- Nextcloud app (PHP + Apache) ----------
+  app:
+    image: nextcloud:apache             # official Nextcloud image with Apache built in
+    container_name: nextcloud           # name you'll use in `occ` commands (docker exec ... nextcloud ...)
+    restart: unless-stopped
+    depends_on:                         # start db + redis before app (doesn't wait for DB to be "ready",
+      - db                              #  so app may restart a few times on first run — normal)
+      - redis
+    ports:
+      - "8080:80"                       # Pi port 8080 -> Apache port 80 inside container; Tailscale wraps this in HTTPS
+    volumes:
+      - nextcloud_app:/var/www/html     # Nextcloud program files, config, installed apps (persists across updates)
+      - /home/admin/data/nextcloud:/var/www/html/data   # BIND MOUNT: your real files live at ~/data/nextcloud (owned 33:33)
+    environment:
+      - MYSQL_HOST=db                   # database is reachable at hostname "db" (the service name)
+      - MYSQL_DATABASE=nextcloud        # must match the db service
+      - MYSQL_USER=nextcloud            # must match the db service
+      - REDIS_HOST=redis                # use the redis container for cache/locking
+      - NEXTCLOUD_TRUSTED_DOMAINS=pi-cloud.<TAILNET>.ts.net pi-cloud localhost   # addresses NC will answer on (space-separated)
+      - NEXTCLOUD_DEFAULT_PHONE_REGION=PL   # default country for phone-number fields — set your own
+      - TRUSTED_PROXIES=172.16.0.0/12   # trust Docker's internal network as the reverse proxy (Tailscale)
+      - OVERWRITEPROTOCOL=https         # force generated links to use https
+      - OVERWRITEHOST=pi-cloud.<TAILNET>.ts.net      # external hostname users actually see
+      - OVERWRITECLIURL=https://pi-cloud.<TAILNET>.ts.net   # address for cron/CLI tasks
+    env_file:
+      - .env
+
+# ---------- Named volumes (managed by Docker; persist across container rebuilds) ----------
+volumes:
+  db_data:            # MariaDB data
+  nextcloud_app:      # Nextcloud program files & config
+  # (user files are NOT here — they're the bind-mounted ~/data/nextcloud above)
