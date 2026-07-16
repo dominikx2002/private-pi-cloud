@@ -85,5 +85,5 @@ This is a personal, non-commercial project and is **not affiliated with or endor
 Released under the [MIT License](LICENSE).
 
 <div align="center">
-<sub>Your data, your hardware, your home. 🏠</sub>
+<sub>Your data, your hardware, your home. @Dominik Serafin</sub>
 </div>
