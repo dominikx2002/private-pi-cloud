@@ -53,11 +53,16 @@ Photos back up automatically to **Immich**, files sync through **Nextcloud**, an
 
 > The Wiki links above use special characters in their titles; if one doesn't open, browse from the [Wiki home page](https://github.com/dominikx2002/private-pi-cloud/wiki) instead.
 
+## Documentation
+- **[Build guide (Wiki)](https://github.com/dominikx2002/private-pi-cloud/wiki)** — step-by-step tutorial.
+- **[System Documentation (PDF)](docs/system-documentation.pdf)** — formal as-built technical reference.
+
 ## Repository structure
 
 ```
 private-pi-cloud/
 ├── assets/          # images used by the Wiki
+├── docs/            # system documentation
 ├── nextcloud/       # Nextcloud stack: docker-compose.yml + .env.example
 ├── immich/          # Immich stack: .env.example (compose is pulled from upstream)
 ├── .gitignore       # keeps real .env files out of git
