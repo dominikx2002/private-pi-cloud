@@ -12,9 +12,15 @@ A self-hosted family cloud on a <b>Raspberry Pi 5</b> — a full replacement for
 </p>
 
 <p align="center">
-<img src="https://img.shields.io/badge/Raspberry%20Pi-5-C51A4A?logo=raspberrypi&logoColor=white" alt="Raspberry Pi 5"/>
-<img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker"/>
-<img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License"/>
+  <a href="https://www.raspberrypi.com/products/raspberry-pi-5/">
+    <img src="https://img.shields.io/badge/Raspberry%20Pi-5-C51A4A?logo=raspberrypi&logoColor=white" alt="Raspberry Pi 5"/>
+  </a>
+  <a href="https://www.docker.com/">
+    <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker"/>
+  </a>
+  <a href="https://github.com/dominikx2002/private-pi-cloud/main/LICENSE.md">
+    <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License"/>
+  </a>
 </p>
 
 ---
